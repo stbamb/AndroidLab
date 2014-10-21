@@ -50,18 +50,21 @@ public class FoodAdapter extends ParseQueryAdapter<ParseObject> {
             foodImage.setParseFile(imageFile);
             foodImage.loadInBackground();
         }
+
         ParseImageView countryFlag = (ParseImageView) v.findViewById(R.id.flag);
         imageFile = object.getParseFile("countryFlag");
         if (imageFile != null) {
             countryFlag.setParseFile(imageFile);
             countryFlag.loadInBackground();
         }
+
         TextView nameTextView = (TextView) v.findViewById(R.id.name);
         nameTextView.setText(object.getString("name"));
         TextView typeView = (TextView) v.findViewById(R.id.type);
         typeView.setText(object.getString("type"));
-        TextView descView = (TextView) v.findViewById(R.id.desc);
-        descView.setText(object.getString("desc"));
+        /*TextView descView = (TextView) v.findViewById(R.id.desc);
+        descView.setText(object.getString("desc"));*/
+
         return v;
     }
 }

@@ -10,12 +10,6 @@
         android:actionViewClass="android.widget.SearchView" />
 
     <item
-        android:id="@+id/refresh_option"
-        android:icon="@drawable/ic_action_refresh"
-        android:showAsAction="ifRoom"
-        android:title="Refresh" />
-
-    <item
         android:id="@+id/add_option"
         android:icon="@drawable/ic_action_new"
         android:showAsAction="ifRoom"

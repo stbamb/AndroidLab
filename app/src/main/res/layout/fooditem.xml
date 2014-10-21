@@ -1,5 +1,5 @@
-<?xml	version="1.0"	encoding="utf-8"?>
-<RelativeLayout	xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"	>
 
@@ -23,16 +23,15 @@
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/icon"
+        android:layout_below="@+id/name"
         android:layout_toRightOf="@id/icon"
-        android:textColor="#ff3d3d3d"
         android:textSize="32sp"	/>
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/type"
+        android:layout_alignTop="@+id/icon"
         android:layout_toRightOf="@id/icon"
         android:textSize="32sp"	/>
 
@@ -40,7 +39,8 @@
         android:id="@+id/desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/name"
+        android:layout_below="@+id/type"
         android:layout_toRightOf="@id/icon"
         android:textSize="32sp"	/>
+
 </RelativeLayout>

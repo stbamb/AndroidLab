@@ -1,8 +1,12 @@
 package com.stbam.androidlab;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -11,245 +15,255 @@ import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseRelation;
 import com.parse.SaveCallback;
 
 public class FileExplore extends Activity {
 
-	// Stores names of traversed directories
-	ArrayList<String> str = new ArrayList<String>();
+    // Stores names of traversed directories
+    ArrayList<String> str = new ArrayList<String>();
 
-	// Check if the first level of the directory structure is the one showing
-	private Boolean firstLvl = true;
+    // Check if the first level of the directory structure is the one showing
+    private Boolean firstLvl = true;
 
-	private static final String TAG = "F_PATH";
+    private static final String TAG = "F_PATH";
 
-	private Item[] fileList;
-	private File path = new File(Environment.getExternalStorageDirectory() + "");
-	private String chosenFile;
+    private Item[] fileList;
+    private File path = new File(Environment.getExternalStorageDirectory() + "");
+    private String chosenFile;
     public String fileName;
-	private static final int DIALOG_LOAD_FILE = 1000;
+    private static final int DIALOG_LOAD_FILE = 1000;
 
-	ListAdapter adapter;
+    ListAdapter adapter;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-		super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-		loadFileList();
+        loadFileList();
 
-		showDialog(DIALOG_LOAD_FILE);
-		Log.d(TAG, path.getAbsolutePath());
+        showDialog(DIALOG_LOAD_FILE);
+        Log.d(TAG, path.getAbsolutePath());
 
-	}
+    }
 
-	private void loadFileList() {
-		try {
-			path.mkdirs();
-		} catch (SecurityException e) {
-			Log.e(TAG, "unable to write on the sd card ");
-		}
+    private void loadFileList() {
+        try {
+            path.mkdirs();
+        } catch (SecurityException e) {
+            Log.e(TAG, "unable to write on the sd card ");
+        }
 
-		// Checks whether path exists
-		if (path.exists()) {
-			FilenameFilter filter = new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String filename) {
-					File sel = new File(dir, filename);
-					// Filters based on whether the file is hidden or not
-					return (sel.isFile() || sel.isDirectory())
-							&& !sel.isHidden();
+        // Checks whether path exists
+        if (path.exists()) {
+            FilenameFilter filter = new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String filename) {
+                    File sel = new File(dir, filename);
+                    // Filters based on whether the file is hidden or not
+                    return (sel.isFile() || sel.isDirectory())
+                            && !sel.isHidden();
 
-				}
-			};
+                }
+            };
 
-			String[] fList = path.list(filter);
-			fileList = new Item[fList.length];
-			for (int i = 0; i < fList.length; i++) {
-				fileList[i] = new Item(fList[i], R.drawable.ic_action_copy);
+            String[] fList = path.list(filter);
+            fileList = new Item[fList.length];
+            for (int i = 0; i < fList.length; i++) {
+                fileList[i] = new Item(fList[i], R.drawable.ic_action_copy);
 
-				// Convert into file path
-				File sel = new File(path, fList[i]);
+                // Convert into file path
+                File sel = new File(path, fList[i]);
 
-				// Set drawables
-				if (sel.isDirectory()) {
-					fileList[i].icon = R.drawable.ic_action_collection;
-					Log.d("DIRECTORY", fileList[i].file);
-				} else {
-					Log.d("FILE", fileList[i].file);
+                // Set drawables
+                if (sel.isDirectory()) {
+                    fileList[i].icon = R.drawable.ic_action_collection;
+                    Log.d("DIRECTORY", fileList[i].file);
+                } else {
+                    Log.d("FILE", fileList[i].file);
                     fileName = fileList[i].file;
-				}
-			}
+                }
+            }
 
-			if (!firstLvl) {
-				Item temp[] = new Item[fileList.length + 1];
-				for (int i = 0; i < fileList.length; i++) {
-					temp[i + 1] = fileList[i];
-				}
-				temp[0] = new Item("Up", R.drawable.ic_action_undo);
-				fileList = temp;
-			}
-		} else {
-			Log.e(TAG, "path does not exist");
-		}
+            if (!firstLvl) {
+                Item temp[] = new Item[fileList.length + 1];
+                for (int i = 0; i < fileList.length; i++) {
+                    temp[i + 1] = fileList[i];
+                }
+                temp[0] = new Item("Up", R.drawable.ic_action_undo);
+                fileList = temp;
+            }
+        } else {
+            Log.e(TAG, "path does not exist");
+        }
 
-		adapter = new ArrayAdapter<Item>(this,
-				android.R.layout.select_dialog_item, android.R.id.text1,
-				fileList) {
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				// creates view
-				View view = super.getView(position, convertView, parent);
-				TextView textView = (TextView) view
-						.findViewById(android.R.id.text1);
+        adapter = new ArrayAdapter<Item>(this,
+                android.R.layout.select_dialog_item, android.R.id.text1,
+                fileList) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                // creates view
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view
+                        .findViewById(android.R.id.text1);
 
-				// put the image on the text view
-				textView.setCompoundDrawablesWithIntrinsicBounds(
-						fileList[position].icon, 0, 0, 0);
+                // put the image on the text view
+                textView.setCompoundDrawablesWithIntrinsicBounds(
+                        fileList[position].icon, 0, 0, 0);
 
-				// add margin between image and text (support various screen
-				// densities)
-				int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
-				textView.setCompoundDrawablePadding(dp5);
+                // add margin between image and text (support various screen
+                // densities)
+                int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
+                textView.setCompoundDrawablePadding(dp5);
 
-				return view;
-			}
-		};
+                return view;
+            }
+        };
 
-	}
+    }
 
     private class Item {
-		public String file;
-		public int icon;
+        public String file;
+        public int icon;
 
-		public Item(String file, Integer icon) {
-			this.file = file;
-			this.icon = icon;
-		}
+        public Item(String file, Integer icon) {
+            this.file = file;
+            this.icon = icon;
+        }
 
-		@Override
-		public String toString() {
-			return file;
-		}
-	}
+        @Override
+        public String toString() {
+            return file;
+        }
+    }
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
-		AlertDialog.Builder builder = new Builder(this);
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
+        AlertDialog.Builder builder = new Builder(this);
 
-		if (fileList == null) {
-			Log.e(TAG, "No files loaded");
-			dialog = builder.create();
-			return dialog;
-		}
+        if (fileList == null) {
+            Log.e(TAG, "No files loaded");
+            dialog = builder.create();
+            return dialog;
+        }
 
-		switch (id) {
-		case DIALOG_LOAD_FILE:
-			builder.setTitle("Choose your file");
-			builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					chosenFile = fileList[which].file;
-					File sel = new File(path + "/" + chosenFile);
-					if (sel.isDirectory()) {
-						firstLvl = false;
+        switch (id) {
+            case DIALOG_LOAD_FILE:
+                builder.setTitle("Choose your file");
+                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        chosenFile = fileList[which].file;
+                        File sel = new File(path + "/" + chosenFile);
+                        if (sel.isDirectory()) {
+                            firstLvl = false;
 
-						// Adds chosen directory to list
-						str.add(chosenFile);
-						fileList = null;
-						path = new File(sel + "");
+                            // Adds chosen directory to list
+                            str.add(chosenFile);
+                            fileList = null;
+                            path = new File(sel + "");
 
-						loadFileList();
+                            loadFileList();
 
-						removeDialog(DIALOG_LOAD_FILE);
-						showDialog(DIALOG_LOAD_FILE);
-						Log.d(TAG, path.getAbsolutePath());
+                            removeDialog(DIALOG_LOAD_FILE);
+                            showDialog(DIALOG_LOAD_FILE);
+                            Log.d(TAG, path.getAbsolutePath());
 
-					}
+                        }
 
-					// Checks if 'up' was clicked
-					else if (chosenFile.equalsIgnoreCase("up") && !sel.exists()) {
+                        // Checks if 'up' was clicked
+                        else if (chosenFile.equalsIgnoreCase("up") && !sel.exists()) {
 
-						// present directory removed from list
-						String s = str.remove(str.size() - 1);
+                            // present directory removed from list
+                            String s = str.remove(str.size() - 1);
 
-						// path modified to exclude present directory
-						path = new File(path.toString().substring(0,
-								path.toString().lastIndexOf(s)));
-						fileList = null;
+                            // path modified to exclude present directory
+                            path = new File(path.toString().substring(0,
+                                    path.toString().lastIndexOf(s)));
+                            fileList = null;
 
-						// if there are no more directories in the list, then
-						// its the first level
-						if (str.isEmpty()) {
-							firstLvl = true;
-						}
-						loadFileList();
+                            // if there are no more directories in the list, then
+                            // its the first level
+                            if (str.isEmpty()) {
+                                firstLvl = true;
+                            }
+                            loadFileList();
 
-						removeDialog(DIALOG_LOAD_FILE);
-						showDialog(DIALOG_LOAD_FILE);
-						Log.d(TAG, path.getAbsolutePath());
+                            removeDialog(DIALOG_LOAD_FILE);
+                            showDialog(DIALOG_LOAD_FILE);
+                            Log.d(TAG, path.getAbsolutePath());
 
-					}
-					// File picked
-					else {
-                        uploadToParse();
+                        }
+                        // File picked
+                        else {
+                            uploadToParse();
 
-					}
+                        }
 
-				}
-			});
-			break;
-		}
-		dialog = builder.show();
-		return dialog;
-	}
+                    }
+                });
+                break;
+        }
+        dialog = builder.show();
+        return dialog;
+    }
 
     public void uploadToParse() {
         Intent intent = getIntent();
         String name = intent.getStringExtra(AddActivity.NAME);
         String country = intent.getStringExtra(AddActivity.COUNTRY);
         String desc = intent.getStringExtra(AddActivity.DESC);
-
-        Bitmap myBitmap = BitmapFactory.decodeFile(path.getAbsolutePath());
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        // Compress image to lower quality scale 1 - 100
-       // myBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] image = stream.toByteArray();
-
+        byte[] image = fileName.getBytes();
+        try {
+            image = readInFile(path + "/" + chosenFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ParseFile file = new ParseFile(fileName, image);
         ParseObject food = new ParseObject("Food");
         food.put("name", name);
         food.put("type", country);
         food.put("desc", desc);
         final Object f = this;
-        food.put("countryFlag", file);
+        food.put("image", file);
         food.saveInBackground(new SaveCallback() {
             public void done(ParseException e) {
-
                 Intent intent2 = new Intent((android.content.Context) f, MainActivity.class);
                 startActivity(intent2);
-                // Handle success or failure here ...
             }
         });
+    }
 
+    // esta funcion fue tomada de Internet
+    // http://stackoverflow.com/questions/25027911/issues-with-format
+    private byte[] readInFile(String path) throws IOException {
+        // TODO Auto-generated method stub
+        byte[] data = null;
+        File file = new File(path);
+        InputStream input_stream = new BufferedInputStream(new FileInputStream(
+                file));
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        data = new byte[16384]; // 16K
+        int bytes_read;
+        while ((bytes_read = input_stream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, bytes_read);
+        }
+        input_stream.close();
+        return buffer.toByteArray();
     }
 
 }

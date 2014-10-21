@@ -12,9 +12,9 @@ import android.widget.EditText;
 
 public class AddActivity extends Activity {
 
-    public final static String NAME = "";
-    public final static String COUNTRY = "";
-    public final static String DESC = "";
+    public final static String NAME = "NAME";
+    public final static String COUNTRY = "COUNTRY";
+    public final static String DESC = "DESC";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
