@@ -15,4 +15,10 @@
         android:showAsAction="ifRoom"
         android:title="Add" />
 
+    <item
+        android:id="@+id/social_option"
+        android:icon="@drawable/ic_action_group"
+        android:showAsAction="ifRoom"
+        android:title="Social" />
+
 </menu>

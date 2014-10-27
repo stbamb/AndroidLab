@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.SaveCallback;
 
@@ -237,6 +238,25 @@ public class FileExplore extends Activity {
         ParseObject food = new ParseObject("Food");
         food.put("name", name);
         food.put("type", country);
+
+        ParseFile imageFile = null;
+
+        ParseObject object = null;
+
+        ParseQuery query = new ParseQuery("Country");
+        query.whereEqualTo("name", country);
+
+        try{
+            imageFile = query.getFirst().getParseFile("image");
+            if (imageFile != null) {
+
+            }
+        }
+        catch(com.parse.ParseException e){
+
+        }
+
+        food.put("countryFlag", imageFile);
         food.put("desc", desc);
         final Object f = this;
         food.put("image", file);

@@ -32,7 +32,7 @@ public class FoodAdapter extends ParseQueryAdapter<ParseObject> {
             public ParseQuery create() {
                 ParseQuery query = new ParseQuery("Food");
                 Log.d("query: ", queryName);
-                query.whereEqualTo("name", queryName);
+                query.whereContains("name", queryName);
                 return query;
             }
         });
@@ -60,8 +60,8 @@ public class FoodAdapter extends ParseQueryAdapter<ParseObject> {
 
         TextView nameTextView = (TextView) v.findViewById(R.id.name);
         nameTextView.setText(object.getString("name"));
-        TextView typeView = (TextView) v.findViewById(R.id.type);
-        typeView.setText(object.getString("type"));
+        //TextView typeView = (TextView) v.findViewById(R.id.type);
+        //typeView.setText(object.getString("type"));
         /*TextView descView = (TextView) v.findViewById(R.id.desc);
         descView.setText(object.getString("desc"));*/
 
